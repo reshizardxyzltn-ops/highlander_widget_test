@@ -1,0 +1,99 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:'DM Mono',monospace;padding:0}
+.header{text-align:center;padding:32px 24px 24px;border-bottom:2px solid #1a1208}
+.hed{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:#1a1208;letter-spacing:-.02em;line-height:1.05}
+.hed span{color:#8b1a1a}
+.maps-row{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.map-panel{padding:20px 16px 16px}
+.map-panel:first-child{border-right:2px solid #1a1208}
+.era-label{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:#1a1208;text-align:center;margin-bottom:4px}
+.era-sub{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8b7355;text-align:center;margin-bottom:12px}
+.legend-strip{display:flex;align-items:center;gap:6px;justify-content:center;padding:12px 0;border-top:1px solid #d4c4a8;border-bottom:1px solid #d4c4a8;flex-wrap:wrap}
+.legend-strip span{font-size:9px;color:#5c4f3a;letter-spacing:.06em}
+.swatch{display:inline-block;width:14px;height:10px;border-radius:1px}
+.avg-row{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 0;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#5c4f3a}
+.avg-badge{background:#8b1a1a;color:#f5f0e8;font-size:9px;padding:3px 8px;letter-spacing:.08em;text-transform:uppercase}
+</style>
+
+<div class="wrap">
+  <div class="header">
+    <div class="hed">U.S. Reading Proficiency<br>Then <span>&amp;</span> Now</div>
+  </div>
+
+  <div class="maps-row">
+    <div class="map-panel">
+      <div class="era-label">Before 2000</div>
+      <div class="era-sub">~1992–1998 national estimates</div>
+      <div id="map-pre" style="width:100%"></div>
+    </div>
+    <div class="map-panel">
+      <div class="era-label">After 2000</div>
+      <div class="era-sub">2022–2024 NAEP data</div>
+      <div id="map-post" style="width:100%"></div>
+    </div>
+  </div>
+
+  <div class="legend-strip">
+    <span style="font-size:9px;color:#5c4f3a;letter-spacing:.08em;text-transform:uppercase;margin-right:4px">Proficiency:</span>
+    <span class="swatch" style="background:#f5c4c4"></span><span>Below 25%</span>
+    <span class="swatch" style="background:#d88080"></span><span>25–30%</span>
+    <span class="swatch" style="background:#a32d2d"></span><span>30–35%</span>
+    <span class="swatch" style="background:#6b1a1a"></span><span>35–40%</span>
+    <span class="swatch" style="background:#2c1010"></span><span>40%+</span>
+  </div>
+
+  <div class="avg-row">
+    <span class="avg-badge">National avg: 37% (1998)</span>
+    <span style="font-size:14px;color:#8b1a1a">&#8594;</span>
+    <span class="avg-badge">National avg: 31% (2024)</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+const preProficiency={
+  'Alabama':31,'Alaska':33,'Arizona':32,'Arkansas':30,'California':30,'Colorado':36,'Connecticut':42,'Delaware':34,
+  'Florida':34,'Georgia':31,'Hawaii':29,'Idaho':36,'Illinois':35,'Indiana':37,'Iowa':40,'Kansas':37,
+  'Kentucky':33,'Louisiana':27,'Maine':40,'Maryland':35,'Massachusetts':44,'Michigan':35,'Minnesota':41,
+  'Mississippi':25,'Missouri':36,'Montana':38,'Nebraska':38,'Nevada':30,'New Hampshire':43,'New Jersey':42,
+  'New Mexico':25,'New York':38,'North Carolina':34,'North Dakota':39,'Ohio':37,'Oklahoma':31,
+  'Oregon':35,'Pennsylvania':38,'Rhode Island':35,'South Carolina':30,'South Dakota':38,'Tennessee':32,
+  'Texas':31,'Utah':37,'Vermont':43,'Virginia':39,'Washington':37,'West Virginia':29,'Wisconsin':40,'Wyoming':37
+};
+const postProficiency={
+  'Alabama':22,'Alaska':26,'Arizona':25,'Arkansas':22,'California':24,'Colorado':31,'Connecticut':36,
+  'Delaware':28,'Florida':31,'Georgia':27,'Hawaii':23,'Idaho':30,'Illinois':28,'Indiana':31,'Iowa':33,
+  'Kansas':30,'Kentucky':27,'Louisiana':21,'Maine':33,'Maryland':31,'Massachusetts':42,'Michigan':27,
+  'Minnesota':34,'Mississippi':20,'Missouri':29,'Montana':31,'Nebraska':32,'Nevada':23,'New Hampshire':38,
+  'New Jersey':39,'New Mexico':19,'New York':32,'North Carolina':30,'North Dakota':32,'Ohio':30,
+  'Oklahoma':24,'Oregon':27,'Pennsylvania':33,'Rhode Island':28,'South Carolina':24,'South Dakota':31,
+  'Tennessee':27,'Texas':27,'Utah':32,'Vermont':38,'Virginia':35,'Washington':31,'West Virginia':23,
+  'Wisconsin':33,'Wyoming':31
+};
+
+const sharedColor=d3.scaleQuantize([18,45],['#f5c4c4','#d88080','#a32d2d','#6b1a1a','#2c1010']);
+
+function drawMap(containerId,data){
+  const container=document.getElementById(containerId);
+  const w=container.clientWidth||300;
+  const h=Math.round(w*0.62);
+  const svg=d3.select(container).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const proj=d3.geoAlbersUsa().scale(w*1.22).translate([w/2,h/2]);
+  const path=d3.geoPath(proj);
+  d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json').then(us=>{
+    svg.selectAll('path').data(topojson.feature(us,us.objects.states).features).join('path')
+      .attr('d',path)
+      .attr('fill',d=>sharedColor(data[d.properties.name]??28))
+      .attr('stroke','#f5f0e8')
+      .attr('stroke-width',0.6)
+      .append('title').text(d=>`${d.properties.name}: ${data[d.properties.name]??'~28'}%`);
+  });
+}
+
+drawMap('map-pre',preProficiency);
+drawMap('map-post',postProficiency);
+</script>
