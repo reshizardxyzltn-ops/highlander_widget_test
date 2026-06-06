@@ -1,0 +1,93 @@
+
+<style>
+  body,*{box-sizing:border-box;margin:0;padding:0}
+  .wrap{padding:28px 24px 32px;font-family:var(--font-sans)}
+  .head-title{font-size:24px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+  .head-sub{font-size:11px;letter-spacing:.12em;color:var(--color-text-secondary);display:flex;align-items:center;gap:6px;margin-bottom:32px}
+  .head-sub::before{content:'';width:16px;height:10px;background:#D85A30;clip-path:polygon(0 15%,38% 50%,0 85%,50% 85%,100% 50%,50% 15%);flex-shrink:0}
+  .tl{position:relative}
+  .spine{position:absolute;top:50%;left:0;right:0;height:2px;background:var(--color-text-primary);transform:translateY(-50%);z-index:0}
+  .row{display:flex;justify-content:space-between;align-items:stretch;gap:0;position:relative;z-index:1}
+  .col{display:flex;flex-direction:column;align-items:center;width:19%;flex-shrink:0}
+  .col.top{justify-content:flex-end}
+  .col.bot{flex-direction:column-reverse;justify-content:flex-end}
+  .card{background:#FAC775;border-radius:12px;padding:13px 14px 14px;width:100%;flex:none}
+  .card.future{background:#EF9F27}
+  .clabel{font-size:9px;letter-spacing:.1em;color:#633806;font-weight:500;margin-bottom:2px}
+  .cyear{font-size:17px;font-weight:500;color:#2C2C2A;margin-bottom:6px;line-height:1.1}
+  .cbody{font-size:10.5px;color:#633806;line-height:1.45;font-weight:500}
+  .cbody ul{margin:4px 0 0 12px;padding:0}
+  .cbody li{margin-bottom:1px}
+  .stem{width:2px;height:36px;background:var(--color-text-primary);flex-shrink:0}
+  .dot{width:13px;height:13px;border-radius:50%;background:var(--color-text-primary);border:3px solid var(--color-text-primary);flex-shrink:0;z-index:2}
+  .dot.hollow{background:var(--color-background-primary)}
+</style>
+<div class="wrap">
+  <h2 class="sr-only">Timeline: From AP Calculus to AP Business — how McLean's course offerings evolved from the 1990s to 2026 and beyond.</h2>
+  <div class="head-title">From AP Calculus to AP Business</div>
+  <div class="head-sub">How McLean's course offerings have evolved</div>
+
+  <div class="tl">
+    <div class="spine"></div>
+
+    <div class="row" style="align-items:flex-end;padding-bottom:0">
+      <div class="col top">
+        <div class="card">
+          <div class="clabel">Core AP Foundation</div>
+          <div class="cyear">1990s–2000</div>
+          <div class="cbody">McLean's program centered on AP U.S. History, English Literature, Biology, and Calculus. All advanced learning was strictly academic and lecture-based.</div>
+        </div>
+        <div class="stem"></div>
+        <div class="dot"></div>
+      </div>
+
+      <div class="col bot">
+        <div class="dot hollow"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="clabel">Technology Advances</div>
+          <div class="cyear">2000s–2010s</div>
+          <div class="cbody">McLean expanded to computer-based electives and began integrating technology into existing courses. Students started using digital tools for research.</div>
+        </div>
+      </div>
+
+      <div class="col top">
+        <div class="card">
+          <div class="clabel">Covid Remote Learning</div>
+          <div class="cyear">2020–2022</div>
+          <div class="cbody">McLean shifted fully online. Zoom classes and digital assignments became standard across all courses.</div>
+        </div>
+        <div class="stem"></div>
+        <div class="dot"></div>
+      </div>
+
+      <div class="col bot">
+        <div class="dot hollow"></div>
+        <div class="stem"></div>
+        <div class="card">
+          <div class="clabel">Hybrid Learning</div>
+          <div class="cyear">2022–Present</div>
+          <div class="cbody">In-person learning returns, but digital platforms remain essential to daily instruction.</div>
+        </div>
+      </div>
+
+      <div class="col top">
+        <div class="card future">
+          <div class="clabel" style="color:#412402">AP Business Principles</div>
+          <div class="cyear" style="color:#412402">2026–Future</div>
+          <div class="cbody" style="color:#412402">McLean introduces AP Business Principles, focused on:
+            <ul>
+              <li>Finance</li>
+              <li>Marketing</li>
+              <li>Entrepreneurship</li>
+              <li>Business Strategy</li>
+            </ul>
+          </div>
+        </div>
+        <div class="stem"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
