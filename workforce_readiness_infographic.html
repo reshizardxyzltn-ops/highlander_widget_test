@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High School Workforce Readiness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; background: #fff; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .wrap { width: 100%; max-width: 920px; }
+
+    .head-title { font-size: 36px; font-weight: 500; color: #1a1a1a; text-align: center; margin-bottom: 5px; }
+    .head-sub { font-size: 14px; letter-spacing: .12em; color: #888; display: flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 28px; }
+    .head-sub::before { content: ''; width: 18px; height: 11px; background: #D85A30; clip-path: polygon(0 15%,38% 50%,0 85%,50% 85%,100% 50%,50% 15%); flex-shrink: 0; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+    .stat { background: #FAC775; border-radius: 13px; padding: 20px 18px; display: flex; flex-direction: column; justify-content: space-between; }
+    .stat.dark { background: #EF9F27; }
+    .stat.accent { background: #2C2C2A; }
+
+    .stat-num { font-size: 52px; font-weight: 600; color: #412402; line-height: 1; margin-bottom: 6px; }
+    .stat-num.light { color: #FAC775; }
+    .stat-label { font-size: 12px; font-weight: 500; color: #633806; line-height: 1.4; }
+    .stat-label.light { color: #FAC775; opacity: 0.85; }
+    .stat-source { font-size: 9px; letter-spacing: .08em; color: #854F0B; margin-top: 10px; text-transform: uppercase; }
+    .stat-source.light { color: #FAC775; opacity: 0.5; }
+
+    .wide { grid-column: span 2; display: flex; align-items: center; gap: 20px; }
+    .wide .stat-num { font-size: 72px; flex-shrink: 0; }
+
+    .bar-wrap { margin-top: 6px; }
+    .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .bar-label { font-size: 10px; color: #633806; font-weight: 500; width: 120px; flex-shrink: 0; }
+    .bar-track { flex: 1; height: 8px; background: #e8a84a; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: #412402; border-radius: 4px; }
+    .bar-pct { font-size: 10px; color: #412402; font-weight: 600; width: 30px; text-align: right; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head-title">Are High Schoolers Ready for Work?</div>
+    <div class="head-sub">Key findings from the 2025 New Hire Readiness Report — U.S. Chamber of Commerce & College Board</div>
+
+    <div class="grid">
+
+      <div class="stat dark">
+        <div>
+          <div class="stat-num">84%</div>
+          <div class="stat-label">of hiring managers say most high school students are <strong>not prepared</strong> to enter the workforce</div>
+        </div>
+        <div class="stat-source">500 hiring managers surveyed</div>
+      </div>
+
+      <div class="stat">
+        <div>
+          <div class="stat-num">80%</div>
+          <div class="stat-label">say recent high school graduates are <strong>less prepared</strong> than previous generations</div>
+        </div>
+        <div class="stat-source">U.S. Chamber of Commerce</div>
+      </div>
+
+      <div class="stat accent">
+        <div>
+          <div class="stat-num light">92%</div>
+          <div class="stat-label light">say there should be <strong>more business courses</strong> in high school</div>
+        </div>
+        <div class="stat-source light">U.S. Chamber of Commerce</div>
+      </div>
+
+    </div>
+
+    <div class="grid-2">
+
+      <div class="stat">
+        <div>
+          <div class="stat-num">97%</div>
+          <div class="stat-label">say high school should teach more <strong>professional career skills</strong> like communication, collaboration & critical thinking</div>
+        </div>
+        <div class="stat-source">U.S. Chamber of Commerce</div>
+      </div>
+
+      <div class="stat dark">
+        <div class="bar-wrap">
+          <div class="stat-label" style="margin-bottom:10px;font-size:11px;">Graduates seen as <strong>prepared</strong> by hiring managers</div>
+          <div class="bar-row">
+            <div class="bar-label">With credentials</div>
+            <div class="bar-track"><div class="bar-fill" style="width:71%"></div></div>
+            <div class="bar-pct">71%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Without credentials</div>
+            <div class="bar-track"><div class="bar-fill" style="width:40%"></div></div>
+            <div class="bar-pct">40%</div>
+          </div>
+        </div>
+        <div class="stat-source">Industry-recognized credentials make a difference</div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:14px; display:grid; grid-template-columns: repeat(3,1fr); gap:14px;">
+      <div class="stat" style="flex-direction:row;align-items:center;gap:12px;">
+        <div class="stat-num" style="font-size:38px;flex-shrink:0;">90%</div>
+        <div class="stat-label">say <strong>real-world experience</strong> — internships, CTE, jobs — is most valuable, over formal education</div>
+      </div>
+      <div class="stat dark" style="flex-direction:row;align-items:center;gap:12px;">
+        <div class="stat-num" style="font-size:38px;flex-shrink:0;">85%</div>
+        <div class="stat-label">of students took at least one <strong>CTE course</strong> in 2019 (NCES)</div>
+      </div>
+      <div class="stat" style="flex-direction:row;align-items:center;gap:12px;">
+        <div class="stat-num" style="font-size:38px;flex-shrink:0;">35</div>
+        <div class="stat-label">states now require a <strong>personal finance</strong> course to graduate as of 2024</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
