@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>From AP Calculus to AP Business</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f5f4f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .wrap { background: #fff; border-radius: 18px; padding: 36px 32px 40px; max-width: 860px; width: 100%; }
+    .head-title { font-size: 28px; font-weight: 500; color: #1a1a1a; margin-bottom: 5px; }
+    .head-sub { font-size: 11px; letter-spacing: .13em; color: #888; display: flex; align-items: center; gap: 7px; margin-bottom: 36px; }
+    .head-sub::before { content: ''; width: 18px; height: 11px; background: #D85A30; clip-path: polygon(0 15%,38% 50%,0 85%,50% 85%,100% 50%,50% 15%); flex-shrink: 0; }
+    .tl { position: relative; }
+    .spine { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: #1a1a1a; transform: translateY(-50%); z-index: 0; }
+    .row { display: flex; justify-content: space-between; align-items: stretch; position: relative; z-index: 1; }
+    .col { display: flex; flex-direction: column; align-items: center; width: 18.5%; flex-shrink: 0; }
+    .col.top { justify-content: flex-end; }
+    .col.bot { flex-direction: column-reverse; justify-content: flex-end; }
+    .card { background: #FAC775; border-radius: 13px; padding: 14px 15px 15px; width: 100%; }
+    .card.future { background: #EF9F27; }
+    .clabel { font-size: 9px; letter-spacing: .1em; color: #633806; font-weight: 500; margin-bottom: 3px; text-transform: uppercase; }
+    .cyear { font-size: 18px; font-weight: 500; color: #2C2C2A; margin-bottom: 7px; line-height: 1.1; }
+    .cbody { font-size: 10.5px; color: #633806; line-height: 1.5; font-weight: 500; }
+    .cbody ul { margin: 5px 0 0 13px; padding: 0; }
+    .cbody li { margin-bottom: 2px; }
+    .stem { width: 2px; height: 38px; background: #1a1a1a; flex-shrink: 0; }
+    .dot { width: 14px; height: 14px; border-radius: 50%; background: #1a1a1a; border: 3px solid #1a1a1a; flex-shrink: 0; z-index: 2; }
+    .dot.hollow { background: #fff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head-title">From AP Calculus to AP Business</div>
+    <div class="head-sub">How McLean's course offerings have evolved</div>
+
+    <div class="tl">
+      <div class="spine"></div>
+      <div class="row">
+
+        <div class="col top">
+          <div class="card">
+            <div class="clabel">Core AP Foundation</div>
+            <div class="cyear">1990s–2000</div>
+            <div class="cbody">McLean's program centered on AP U.S. History, English Literature, Biology, and Calculus. All advanced learning was strictly academic and lecture-based.</div>
+          </div>
+          <div class="stem"></div>
+          <div class="dot"></div>
+        </div>
+
+        <div class="col bot">
+          <div class="dot hollow"></div>
+          <div class="stem"></div>
+          <div class="card">
+            <div class="clabel">Technology Advances</div>
+            <div class="cyear">2000s–2010s</div>
+            <div class="cbody">McLean expanded to computer-based electives and began integrating technology into existing courses. Students started using digital tools for research.</div>
+          </div>
+        </div>
+
+        <div class="col top">
+          <div class="card">
+            <div class="clabel">Covid Remote Learning</div>
+            <div class="cyear">2020–2022</div>
+            <div class="cbody">McLean shifted fully online. Zoom classes and digital assignments became standard across all courses.</div>
+          </div>
+          <div class="stem"></div>
+          <div class="dot"></div>
+        </div>
+
+        <div class="col bot">
+          <div class="dot hollow"></div>
+          <div class="stem"></div>
+          <div class="card">
+            <div class="clabel">Hybrid Learning</div>
+            <div class="cyear">2022–Present</div>
+            <div class="cbody">In-person learning returns, but digital platforms remain essential to daily instruction.</div>
+          </div>
+        </div>
+
+        <div class="col top">
+          <div class="card future">
+            <div class="clabel" style="color:#412402">AP Business Principles</div>
+            <div class="cyear" style="color:#412402">2026–Future</div>
+            <div class="cbody" style="color:#412402">McLean introduces AP Business Principles, focused on:
+              <ul>
+                <li>Finance</li>
+                <li>Marketing</li>
+                <li>Entrepreneurship</li>
+                <li>Business Strategy</li>
+              </ul>
+            </div>
+          </div>
+          <div class="stem"></div>
+          <div class="dot"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>
