@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High School Workforce Readiness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { margin: 0; padding: 0; overflow-x: hidden; }
+    body { font-family: 'Inter', sans-serif; background: #fff; padding: 28px 16px 24px; }
+    .head-title { font-size: 32px; font-weight: 500; color: #1a1a1a; text-align: center; margin-bottom: 5px; }
+    .head-sub { font-size: 13px; letter-spacing: .12em; color: #888; display: flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 28px; }
+    .head-sub::before { content: ''; width: 18px; height: 11px; background: #D85A30; clip-path: polygon(0 15%,38% 50%,0 85%,50% 85%,100% 50%,50% 15%); flex-shrink: 0; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 8px; width: 100%; }
+    .card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+    .card svg { width: 100%; height: auto; display: block; }
+    .stat-label { font-size: 12px; font-weight: 400; color: #555; line-height: 1.5; }
+    .source { font-size: 11px; color: #bbb; text-align: center; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="head-title">Are High Schoolers Ready for Work?</div>
+  <div class="head-sub">2025 New Hire Readiness Report</div>
+
+  <div class="grid">
+    <div class="card"><svg class="pie" viewBox="0 0 80 80"></svg><div class="stat-label">say grads are not workforce ready</div></div>
+    <div class="card"><svg class="pie" viewBox="0 0 80 80"></svg><div class="stat-label">say grads are less prepared than past generations</div></div>
+    <div class="card"><svg class="pie" viewBox="0 0 80 80"></svg><div class="stat-label">want more business courses in high school</div></div>
+    <div class="card"><svg class="pie" viewBox="0 0 80 80"></svg><div class="stat-label">want schools to teach communication and critical thinking</div></div>
+    <div class="card"><svg class="pie" viewBox="0 0 80 80"></svg><div class="stat-label">with industry credentials seen as prepared</div></div>
+    <div class="card"><svg class="pie" viewBox="0 0 80 80"></svg><div class="stat-label">without credentials seen as prepared</div></div>
+    <div class="card"><svg class="pie" viewBox="0 0 80 80"></svg><div class="stat-label">of students took at least one CTE course in 2019</div></div>
+    <div class="card"><svg class="pie" viewBox="0 0 80 80"></svg><div class="stat-label">say real-world experience beats formal education</div></div>
+  </div>
+
+  <div class="source">U.S. Chamber of Commerce & College Board — 500 hiring managers surveyed</div>
+
+  <script>
+    const data = [84, 80, 92, 97, 71, 40, 85, 90];
+    document.querySelectorAll('svg.pie').forEach((svg, i) => {
+      const pct = data[i];
+      const r = 32, cx = 40, cy = 40;
+      const angle = (pct / 100) * 2 * Math.PI;
+      const x = cx + r * Math.sin(angle);
+      const y = cy - r * Math.cos(angle);
+      const large = pct > 50 ? 1 : 0;
+      svg.innerHTML = `
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="#f5d398"/>
+        <path d="M${cx} ${cy} L${cx} ${cy-r} A${r} ${r} 0 ${large} 1 ${x.toFixed(2)} ${y.toFixed(2)} Z" fill="#D85A30"/>
+        <text x="${cx}" y="${cy+5}" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#1a1a1a">${pct}%</text>
+      `;
+    });
+  </script>
+</body>
+</html>
