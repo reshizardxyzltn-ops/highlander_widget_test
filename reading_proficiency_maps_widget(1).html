@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>U.S. Reading Proficiency: Then &amp; Now</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Source+Sans+3:wght@400;500;600&display=swap');
+
+  :root{
+    --rpw-ink:#1a1208;
+    --rpw-red:#8b1a1a;
+    --rpw-paper:#fbf8f1;
+    --rpw-cream:#f5f0e8;
+    --rpw-tan:#d4c4a8;
+    --rpw-muted:#75644d;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;background:transparent}
+
+  #reading-map-widget{
+    width:100%;
+    max-width:940px;
+    margin:0 auto;
+    padding:22px 22px 16px;
+    color:var(--rpw-ink);
+    background:var(--rpw-paper);
+    border:1px solid var(--rpw-tan);
+    border-radius:4px;
+    font-family:'Source Sans 3',system-ui,-apple-system,'Segoe UI',sans-serif;
+    box-shadow:0 14px 35px -28px rgba(26,18,8,.55);
+  }
+
+  .rpw-header{text-align:center;margin-bottom:15px}
+  .rpw-title{
+    margin:0;
+    font-size:clamp(24px,4.2vw,39px);
+    line-height:1.05;
+    letter-spacing:-.035em;
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    font-weight:700;
+  }
+  .rpw-title span{color:var(--rpw-red)}
+  .rpw-subtitle{
+    margin:7px 0 0;
+    color:var(--rpw-muted);
+    font-size:12px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+
+  .rpw-maps{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    border:1px solid var(--rpw-tan);
+    background:var(--rpw-tan);
+    gap:1px;
+  }
+  .rpw-panel{
+    min-width:0;
+    padding:13px 11px 9px;
+    background:var(--rpw-paper);
+  }
+  .rpw-era{text-align:center;margin-bottom:6px}
+  .rpw-era strong{
+    display:block;
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    font-size:clamp(16px,2.2vw,21px);
+    line-height:1.1;
+  }
+  .rpw-era span{
+    display:block;
+    margin-top:3px;
+    color:var(--rpw-muted);
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .rpw-map svg{display:block;width:100%;height:auto;overflow:visible}
+  .rpw-map path{
+    cursor:pointer;
+    transition:opacity .14s ease,stroke-width .14s ease,filter .14s ease;
+  }
+  .rpw-map path:focus{outline:none}
+  .rpw-map path:focus-visible{
+    stroke:var(--rpw-ink)!important;
+    stroke-width:2.4!important;
+    filter:drop-shadow(0 0 1px rgba(26,18,8,.4));
+  }
+
+  .rpw-key{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    margin-top:10px;
+    color:var(--rpw-muted);
+    font-size:10.5px;
+  }
+  .rpw-gradient{
+    width:min(180px,42vw);
+    height:8px;
+    border:1px solid rgba(26,18,8,.15);
+    background:linear-gradient(90deg,#f5c4c4 0 20%,#d88080 20% 40%,#a32d2d 40% 60%,#6b1a1a 60% 80%,#2c1010 80% 100%);
+  }
+
+  #rpw-tooltip{
+    position:fixed;
+    z-index:99999;
+    max-width:230px;
+    padding:9px 11px;
+    color:#fffaf1;
+    background:var(--rpw-ink);
+    border-radius:4px;
+    font-size:12.5px;
+    line-height:1.45;
+    box-shadow:0 8px 22px rgba(0,0,0,.22);
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(3px);
+    transition:opacity .1s ease,transform .1s ease;
+  }
+  #rpw-tooltip.rpw-visible{opacity:1;transform:translateY(0)}
+  #rpw-tooltip strong{color:#f5c4c4}
+  #rpw-status{
+    display:none;
+    padding:22px 10px;
+    color:var(--rpw-red);
+    text-align:center;
+    font-size:13px;
+  }
+
+  @media (max-width:540px){
+    #reading-map-widget{padding:17px 12px 12px}
+    .rpw-panel{padding:10px 5px 7px}
+    .rpw-subtitle{font-size:10px}
+    .rpw-era span{font-size:8px;letter-spacing:.04em}
+    .rpw-key{font-size:9px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .rpw-map path,#rpw-tooltip{transition:none}
+  }
+</style>
+</head>
+<body>
+  <figure id="reading-map-widget" aria-labelledby="rpw-title">
+    <header class="rpw-header">
+      <h2 class="rpw-title" id="rpw-title">U.S. Reading Proficiency: Then <span>&amp;</span> Now</h2>
+      <p class="rpw-subtitle">Hover any state to compare its recent peak with 2024</p>
+    </header>
+
+    <div class="rpw-maps">
+      <section class="rpw-panel" aria-label="Reading proficiency at the recent peak">
+        <div class="rpw-era"><strong>Recent Peak</strong><span>Circa 2017</span></div>
+        <div class="rpw-map" id="rpw-map-peak"></div>
+      </section>
+      <section class="rpw-panel" aria-label="Reading proficiency in 2024">
+        <div class="rpw-era"><strong>Now</strong><span>2024 NAEP</span></div>
+        <div class="rpw-map" id="rpw-map-now"></div>
+      </section>
+    </div>
+
+    <div class="rpw-key" aria-label="Color scale from lower to higher proficiency">
+      <span>Lower</span><span class="rpw-gradient" aria-hidden="true"></span><span>Higher</span>
+    </div>
+    <div id="rpw-status" role="status"></div>
+  </figure>
+
+  <div id="rpw-tooltip" role="tooltip"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+  <script>
+  (() => {
+    'use strict';
+
+    const peak = {
+      'Alabama':31,'Alaska':33,'Arizona':32,'Arkansas':30,'California':30,'Colorado':36,'Connecticut':42,'Delaware':34,
+      'Florida':39,'Georgia':36,'Hawaii':29,'Idaho':36,'Illinois':35,'Indiana':38,'Iowa':40,'Kansas':37,
+      'Kentucky':33,'Louisiana':27,'Maine':40,'Maryland':35,'Massachusetts':50,'Michigan':35,'Minnesota':41,
+      'Mississippi':27,'Missouri':36,'Montana':38,'Nebraska':38,'Nevada':30,'New Hampshire':45,'New Jersey':44,
+      'New Mexico':25,'New York':38,'North Carolina':39,'North Dakota':39,'Ohio':37,'Oklahoma':31,
+      'Oregon':35,'Pennsylvania':40,'Rhode Island':38,'South Carolina':32,'South Dakota':38,'Tennessee':35,
+      'Texas':33,'Utah':37,'Vermont':45,'Virginia':43,'Washington':39,'West Virginia':29,'Wisconsin':40,'Wyoming':41
+    };
+
+    const now = {
+      'Alabama':28,'Alaska':24,'Arizona':27,'Arkansas':27,'California':28,'Colorado':37,'Connecticut':37,
+      'Delaware':25,'Florida':33,'Georgia':30,'Hawaii':28,'Idaho':35,'Illinois':32,'Indiana':36,'Iowa':33,
+      'Kansas':30,'Kentucky':31,'Louisiana':28,'Maine':32,'Maryland':28,'Massachusetts':40,'Michigan':28,
+      'Minnesota':32,'Mississippi':31,'Missouri':32,'Montana':33,'Nebraska':33,'Nevada':25,'New Hampshire':38,
+      'New Jersey':39,'New Mexico':21,'New York':32,'North Carolina':30,'North Dakota':32,'Ohio':33,
+      'Oklahoma':24,'Oregon':28,'Pennsylvania':32,'Rhode Island':32,'South Carolina':29,'South Dakota':33,
+      'Tennessee':33,'Texas':28,'Utah':35,'Vermont':34,'Virginia':33,'Washington':30,'West Virginia':22,
+      'Wisconsin':33,'Wyoming':38
+    };
+
+    const tooltip = document.getElementById('rpw-tooltip');
+    const status = document.getElementById('rpw-status');
+    const maps = {};
+    let activeState = null;
+    let pinnedState = null;
+
+    const color = d3.scaleQuantize()
+      .domain([18,45])
+      .range(['#f5c4c4','#d88080','#a32d2d','#6b1a1a','#2c1010']);
+
+    const change = state => now[state] - peak[state];
+
+    function tooltipHTML(state){
+      const diff = change(state);
+      const diffText = `${diff > 0 ? '+' : ''}${diff} point${Math.abs(diff) === 1 ? '' : 's'}`;
+      return `<strong>${state}</strong><br>Recent peak: ${peak[state]}%<br>2024: ${now[state]}%<br>Change: ${diffText}`;
+    }
+
+    function positionTooltip(event){
+      const pad = 12;
+      const box = tooltip.getBoundingClientRect();
+      let left = event.clientX + 14;
+      let top = event.clientY + 14;
+      if(left + box.width + pad > window.innerWidth) left = event.clientX - box.width - 14;
+      if(top + box.height + pad > window.innerHeight) top = event.clientY - box.height - 14;
+      tooltip.style.left = `${Math.max(pad,left)}px`;
+      tooltip.style.top = `${Math.max(pad,top)}px`;
+    }
+
+    function showTooltip(state,event){
+      tooltip.innerHTML = tooltipHTML(state);
+      tooltip.classList.add('rpw-visible');
+      if(event) positionTooltip(event);
+    }
+
+    function hideTooltip(){
+      if(pinnedState) return;
+      tooltip.classList.remove('rpw-visible');
+    }
+
+    function updateStyles(){
+      const focus = activeState || pinnedState;
+      Object.values(maps).forEach(paths => {
+        paths
+          .attr('opacity', d => {
+            const state = d.properties.name;
+            if(now[state] == null) return focus ? .18 : .5;
+            return !focus || state === focus ? 1 : .28;
+          })
+          .attr('stroke', d => d.properties.name === focus ? '#1a1208' : '#f5f0e8')
+          .attr('stroke-width', d => d.properties.name === focus ? 2.1 : .62);
+        if(focus) paths.filter(d => d.properties.name === focus).raise();
+      });
+    }
+
+    function activate(state,event){
+      activeState = state;
+      updateStyles();
+      showTooltip(state,event);
+    }
+
+    function deactivate(){
+      activeState = null;
+      updateStyles();
+      hideTooltip();
+    }
+
+    function togglePin(state,event){
+      pinnedState = pinnedState === state ? null : state;
+      activeState = null;
+      updateStyles();
+      if(pinnedState) showTooltip(pinnedState,event);
+      else tooltip.classList.remove('rpw-visible');
+    }
+
+    function drawMap(hostId,data,features,key){
+      const width = 430;
+      const height = 255;
+      const svg = d3.select(`#${hostId}`)
+        .append('svg')
+        .attr('viewBox',`0 0 ${width} ${height}`)
+        .attr('role','img')
+        .attr('aria-label',key === 'peak' ? 'Map of fourth-grade reading proficiency around 2017' : 'Map of fourth-grade reading proficiency in 2024');
+
+      const projection = d3.geoAlbersUsa().fitExtent([[5,5],[width-5,height-5]],{
+        type:'FeatureCollection',
+        features
+      });
+      const path = d3.geoPath(projection);
+
+      const paths = svg.selectAll('path')
+        .data(features)
+        .join('path')
+        .attr('d',path)
+        .attr('fill',d => data[d.properties.name] == null ? '#e7ddcb' : color(data[d.properties.name]))
+        .attr('stroke','#f5f0e8')
+        .attr('stroke-width',.62)
+        .attr('tabindex',d => data[d.properties.name] == null ? null : 0)
+        .attr('role',d => data[d.properties.name] == null ? null : 'button')
+        .attr('aria-label',d => {
+          const state = d.properties.name;
+          return now[state] == null ? null : `${state}: ${peak[state]} percent at the recent peak and ${now[state]} percent in 2024`;
+        })
+        .on('mouseenter',(event,d) => {
+          const state = d.properties.name;
+          if(now[state] != null) activate(state,event);
+        })
+        .on('mousemove',(event,d) => {
+          if(now[d.properties.name] != null) positionTooltip(event);
+        })
+        .on('mouseleave',deactivate)
+        .on('focus',(event,d) => {
+          const state = d.properties.name;
+          if(now[state] != null) activate(state,event);
+        })
+        .on('blur',deactivate)
+        .on('click',(event,d) => {
+          const state = d.properties.name;
+          if(now[state] != null) togglePin(state,event);
+        })
+        .on('keydown',(event,d) => {
+          if(event.key === 'Enter' || event.key === ' '){
+            event.preventDefault();
+            const state = d.properties.name;
+            if(now[state] != null) togglePin(state,event);
+          }
+        });
+
+      maps[key] = paths;
+    }
+
+    d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
+      .then(us => {
+        const features = topojson.feature(us,us.objects.states).features;
+        drawMap('rpw-map-peak',peak,features,'peak');
+        drawMap('rpw-map-now',now,features,'now');
+      })
+      .catch(() => {
+        document.querySelector('.rpw-maps').style.display = 'none';
+        document.querySelector('.rpw-key').style.display = 'none';
+        status.style.display = 'block';
+        status.textContent = 'The maps could not load. Please check the internet connection for this embed.';
+      });
+  })();
+  </script>
+</body>
+</html>
