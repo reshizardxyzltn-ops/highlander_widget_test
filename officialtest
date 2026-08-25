@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading & Attention Survey</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Source+Sans+3:wght@400;500;600&display=swap');
+:root{
+  --ink:#1a1208;--paper:#fbf8f1;--cream:#f2e9d8;--tan:#d4c4a8;--muted:#75644d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:transparent;color:var(--ink);font-family:'Source Sans 3',system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased}
+
+#pie-widget{width:100%;max-width:1080px;margin:0 auto;padding:26px 22px 22px;background:var(--paper);border:1px solid var(--tan);border-radius:6px;box-shadow:0 22px 44px -36px rgba(26,18,8,.55)}
+
+.pw-header{text-align:center;margin-bottom:24px;animation:headerIn .6s cubic-bezier(.2,.8,.2,1) both}
+.pw-title{font-family:'Space Grotesk',system-ui,sans-serif;font-size:clamp(24px,3.6vw,36px);letter-spacing:-.03em;line-height:1.05;font-weight:700;margin:0 0 7px}
+.pw-title span{color:#8b1a1a}
+.pw-dek{font-size:14.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin:0}
+
+.pw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+.pw-card{background:#fffaf3;border:1px solid var(--tan);border-radius:6px;padding:18px 18px 16px;display:flex;flex-direction:column;opacity:0;animation:cardIn .55s calc(var(--i,0)*110ms + 120ms) cubic-bezier(.2,.8,.2,1) forwards}
+.pw-q{font-family:'Space Grotesk',system-ui,sans-serif;font-weight:700;font-size:17px;line-height:1.32;letter-spacing:-.01em;min-height:64px}
+
+.pw-donut-wrap{position:relative;width:150px;height:150px;margin:14px auto 16px}
+.pw-donut{width:100%;height:100%;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(26,18,8,.06)}
+.pw-donut-hole{position:absolute;inset:19%;background:#fffaf3;border-radius:50%;box-shadow:0 0 0 1px rgba(26,18,8,.05)}
+
+.pw-legend{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--tan);padding-top:12px;margin-top:auto}
+.pw-row{display:grid;grid-template-columns:10px 1fr auto;align-items:center;gap:8px;font-size:13.5px}
+.pw-swatch{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+.pw-label{color:var(--ink);line-height:1.25}
+.pw-value{display:flex;align-items:baseline;gap:4px;white-space:nowrap}
+.pw-pct{font-family:'Space Grotesk',system-ui,sans-serif;font-weight:700;font-size:17px;letter-spacing:-.02em;color:var(--ink)}
+.pw-count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+@keyframes headerIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+@media(max-width:820px){.pw-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.pw-grid{grid-template-columns:1fr}.pw-q{min-height:0}}
+</style>
+</head>
+<body>
+<section id="pie-widget" aria-label="Reading and attention survey results">
+  <div class="pw-header">
+    <h1 class="pw-title">How Students Actually <span>Read</span></h1>
+    <p class="pw-dek">Survey of 247 students</p>
+  </div>
+  <div class="pw-grid" id="pwGrid"></div>
+</section>
+<script>
+const palette=['#6b1414','#8b1a1a','#af4a3a','#c9805f','#e8c9a0'];
+
+const charts=[
+  {
+    question:'When assigned a full-length book, how much do you actually read?',
+    items:[
+      {label:'Read the entire book',count:59,pct:24},
+      {label:'Read most of it',count:77,pct:31},
+      {label:'Skim important sections',count:52,pct:21},
+      {label:'Use summaries alongside it',count:44,pct:18},
+      {label:'Mostly rely on summaries',count:15,pct:6}
+    ]
+  },
+  {
+    question:'How long can you read before checking your phone or another app?',
+    items:[
+      {label:'Under 5 minutes',count:30,pct:12},
+      {label:'5–15 minutes',count:72,pct:29},
+      {label:'15–30 minutes',count:81,pct:33},
+      {label:'30–60 minutes',count:44,pct:18},
+      {label:'More than an hour',count:20,pct:8}
+    ]
+  },
+  {
+    question:'How often do you read for fun outside of school?',
+    items:[
+      {label:'Every day',count:27,pct:11},
+      {label:'A few times a week',count:49,pct:20},
+      {label:'A few times a month',count:54,pct:22},
+      {label:'Rarely',count:84,pct:34},
+      {label:'Never',count:33,pct:13}
+    ]
+  }
+];
+
+function conicGradient(items,total){
+  let acc=0;
+  const stops=items.map((it,i)=>{
+    const start=acc;
+    acc+=(it.count/total)*100;
+    return `${palette[i]} ${start}% ${acc}%`;
+  });
+  return `conic-gradient(from -90deg, ${stops.join(', ')})`;
+}
+
+const grid=document.getElementById('pwGrid');
+
+charts.forEach((c,ci)=>{
+  const total=c.items.reduce((s,it)=>s+it.count,0);
+  const gradient=conicGradient(c.items,total);
+  const legend=c.items.map((it,i)=>`
+    <div class="pw-row">
+      <span class="pw-swatch" style="background:${palette[i]}" aria-hidden="true"></span>
+      <span class="pw-label">${it.label}</span>
+      <span class="pw-value"><span class="pw-pct">${it.pct}%</span><span class="pw-count">(${it.count})</span></span>
+    </div>`).join('');
+
+  const card=document.createElement('div');
+  card.className='pw-card';
+  card.style.setProperty('--i',ci);
+  card.innerHTML=`
+    <div class="pw-q">${c.question}</div>
+    <div class="pw-donut-wrap">
+      <div class="pw-donut" style="background:${gradient}" role="img" aria-label="Donut chart: ${c.items.map(it=>`${it.label} ${it.pct}%`).join(', ')}"></div>
+      <div class="pw-donut-hole" aria-hidden="true"></div>
+    </div>
+    <div class="pw-legend">${legend}</div>
+  `;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>
