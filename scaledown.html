@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading & Attention Survey</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Source+Sans+3:wght@400;500;600&display=swap');
+
+:root{
+  --ink:#1a1208;
+  --paper:#fbf8f1;
+  --cream:#f2e9d8;
+  --tan:#d4c4a8;
+  --muted:#75644d;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:transparent;
+  color:var(--ink);
+  font-family:'Source Sans 3',system-ui,-apple-system,Segoe UI,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+#pie-widget{
+  width:100%;
+  max-width:345px;
+  margin:0 auto;
+  padding:11px 11px 13px;
+  background:var(--paper);
+  border:1.25px solid #8b1a1a;
+  border-radius:6px;
+  box-shadow:0 14px 28px -24px rgba(26,18,8,.45);
+}
+
+.pw-header{
+  text-align:center;
+  margin-bottom:12px;
+  animation:headerIn .6s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.pw-title{
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  font-size:clamp(20px,2.6vw,27px);
+  letter-spacing:-.03em;
+  line-height:1.05;
+  font-weight:700;
+  margin:0;
+}
+
+.pw-title span{color:#8b1a1a}
+
+.pw-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+
+.pw-card{
+  background:transparent;
+  border:none;
+  border-radius:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  opacity:0;
+  animation:cardIn .55s calc(var(--i,0)*110ms + 120ms) cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.pw-q{
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  font-weight:700;
+  font-size:12px;
+  line-height:1.22;
+  letter-spacing:-.01em;
+  min-height:0;
+  text-align:center;
+  max-width:300px;
+  margin:0 auto;
+}
+
+.pw-donut-wrap{
+  position:relative;
+  width:170px;
+  height:170px;
+  margin:9px auto 11px;
+}
+
+.pw-donut{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(26,18,8,.06);
+}
+
+.pw-donut-hole{
+  position:absolute;
+  inset:21%;
+  background:transparent;
+  border-radius:50%;
+  box-shadow:0 0 0 1px rgba(26,18,8,.05);
+}
+
+.pw-legend{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  border-top:none;
+  padding-top:0;
+  margin-top:auto;
+}
+
+.pw-row{
+  display:grid;
+  grid-template-columns:8px minmax(0,1fr) auto;
+  align-items:center;
+  gap:7px;
+  font-size:12px;
+}
+
+.pw-swatch{
+  width:8px;
+  height:8px;
+  border-radius:2px;
+  flex:0 0 auto;
+}
+
+.pw-label{
+  color:var(--ink);
+  line-height:1.15;
+  min-width:0;
+}
+
+.pw-value{
+  display:flex;
+  align-items:baseline;
+  gap:3px;
+  white-space:nowrap;
+}
+
+.pw-pct{
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  font-weight:700;
+  font-size:14px;
+  letter-spacing:-.02em;
+  color:var(--ink);
+}
+
+.pw-count{
+  font-size:10px;
+  color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+
+@keyframes headerIn{
+  from{opacity:0;transform:translateY(-8px)}
+  to{opacity:1;transform:none}
+}
+
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(10px) scale(.98)}
+  to{opacity:1;transform:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    transition-duration:.001ms!important;
+  }
+}
+
+@media(max-width:600px){
+  #pie-widget{padding:12px}
+  .pw-grid{grid-template-columns:1fr}
+  .pw-q{min-height:0}
+  .pw-donut-wrap{width:112px;height:112px}
+}
+
+/* Interactive solid pie chart */
+.pw-donut-wrap{
+  position:relative;
+  width:125px;
+  height:125px;
+  margin:9px auto 11px;
+}
+
+.pw-pie{
+  display:block;
+  width:100%;
+  height:100%;
+  overflow:visible;
+}
+
+.pw-slice{
+  cursor:default;
+  stroke:var(--paper);
+  stroke-width:1.5;
+  transition:
+    opacity .16s ease,
+    transform .16s ease,
+    filter .16s ease;
+  transform-box:fill-box;
+  transform-origin:center;
+  outline:none;
+}
+
+.pw-slice.is-active{
+  transform:scale(1.05);
+  filter:brightness(1.08);
+  opacity:1;
+}
+
+.pw-slice.is-muted{
+  opacity:.28;
+}
+
+
+.pw-row{
+  cursor:default;
+  padding:5px 6px;
+  border-radius:0;
+  transition:
+    background .14s ease,
+    transform .14s ease,
+    opacity .14s ease;
+}
+
+.pw-row:first-child{
+  border-radius:6px 6px 0 0;
+}
+
+.pw-row:last-child{
+  border-radius:0 0 6px 6px;
+}
+
+.pw-row.is-active{
+  background:rgba(139,26,26,.08);
+  transform:translateX(2px);
+}
+
+.pw-row.is-muted{
+  opacity:.62;
+}
+
+/* Hide/remove any old donut implementation if present */
+.pw-donut,
+.pw-donut-hole{
+  display:none !important;
+}
+
+</style>
+</head>
+<body>
+<section id="pie-widget" aria-label="Reading and attention survey results">
+  <div class="pw-header">
+    <h1 class="pw-title">Survey of 247 Students</h1>
+  </div>
+  <div class="pw-grid" id="pwGrid"></div>
+</section>
+<script>
+const palette=['#6b1414','#8b1a1a','#af4a3a','#c9805f','#e8c9a0'];
+
+const chart={
+  question:'When assigned a full-length book, how much do you actually read?',
+  items:[
+    {label:'Read the entire book',count:59,pct:24},
+    {label:'Read most of it',count:77,pct:31},
+    {label:'Skim important sections',count:52,pct:21},
+    {label:'Use summaries alongside it',count:44,pct:18},
+    {label:'Mostly rely on summaries',count:15,pct:6}
+  ]
+};
+
+const grid=document.getElementById('pwGrid');
+const total=chart.items.reduce((sum,item)=>sum+item.count,0);
+
+const card=document.createElement('div');
+card.className='pw-card';
+card.innerHTML=`
+  <div class="pw-q">${chart.question}</div>
+  <div class="pw-donut-wrap">
+    <svg class="pw-pie" viewBox="0 0 200 200"
+         role="img"
+         aria-label="Pie chart showing how much students read when assigned a full-length book"></svg>
+  </div>
+  <div class="pw-legend">
+    ${chart.items.map((it,i)=>`
+      <div class="pw-row" data-index="${i}">
+        <span class="pw-swatch" style="background:${palette[i]}" aria-hidden="true"></span>
+        <span class="pw-label">${it.label}</span>
+        <span class="pw-value">
+          <span class="pw-pct">${it.pct}%</span>
+          <span class="pw-count">(${it.count})</span>
+        </span>
+      </div>
+    `).join('')}
+  </div>
+`;
+grid.appendChild(card);
+
+const svg=card.querySelector('.pw-pie');
+const rows=[...card.querySelectorAll('.pw-row')];
+
+function pointOnCircle(cx,cy,r,angleDeg){
+  const angle=(angleDeg-90)*Math.PI/180;
+  return {
+    x:cx+r*Math.cos(angle),
+    y:cy+r*Math.sin(angle)
+  };
+}
+
+function pieSlicePath(startAngle,endAngle){
+  const start=pointOnCircle(100,100,88,startAngle);
+  const end=pointOnCircle(100,100,88,endAngle);
+  const largeArc=endAngle-startAngle>180 ? 1 : 0;
+  return `M 100 100 L ${start.x} ${start.y} A 88 88 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
+}
+
+let currentAngle=0;
+const slices=[];
+
+chart.items.forEach((item,index)=>{
+  const sliceAngle=(item.count/total)*360;
+  const endAngle=currentAngle+sliceAngle;
+
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d',pieSlicePath(currentAngle,endAngle));
+  path.setAttribute('fill',palette[index]);
+  path.setAttribute('class','pw-slice');
+  path.setAttribute('aria-label',`${item.label}: ${item.pct} percent, ${item.count} students`);
+  path.dataset.index=index;
+
+  svg.appendChild(path);
+  slices.push(path);
+  currentAngle=endAngle;
+});
+
+function activate(index){
+  const item=chart.items[index];
+
+  slices.forEach((slice,i)=>{
+    if(i===index){
+      slice.classList.add('is-active');
+      slice.classList.remove('is-muted');
+    }else{
+      slice.classList.remove('is-active');
+      slice.classList.add('is-muted');
+    }
+  });
+
+  rows.forEach((row,i)=>{
+    if(i===index){
+      row.classList.add('is-active');
+      row.classList.remove('is-muted');
+    }else{
+      row.classList.remove('is-active');
+      row.classList.add('is-muted');
+    }
+  });
+
+}
+
+function clearActive(){
+  slices.forEach(slice=>slice.classList.remove('is-active','is-muted'));
+  rows.forEach(row=>row.classList.remove('is-active','is-muted'));
+}
+
+slices.forEach((slice,index)=>{
+  slice.addEventListener('mouseenter',()=>activate(index));
+  slice.addEventListener('mouseleave',clearActive);
+});
+
+rows.forEach((row,index)=>{
+  row.addEventListener('mouseenter',()=>activate(index));
+  row.addEventListener('mouseleave',clearActive);
+});
+</script>
+</body>
+</html>
