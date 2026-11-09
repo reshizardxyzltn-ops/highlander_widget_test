@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Shift in Power | The Highlander</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Reuters-inspired newsroom typography and restrained information hierarchy. */
+  :root {
+    --dem: #2563EB;
+    --rep: #DC2626;
+    --neutral: #CBD5E1;
+    --ind: #8B93A1;
+    --bg: #FFFFFF;
+    --ink: #171717;
+    --ink2: #4A4A4A;
+    --muted: #737373;
+    --rule: #DCDCDC;
+    --sans: "Poppins", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: var(--sans); font-weight: 400;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility;
+  }
+  button { font-family: inherit; color: inherit; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 16px 16px 12px; }
+
+  /* Fixed embed canvas: changing chambers or views never changes iframe height. */
+  html, body { height: 750px; min-height: 750px; max-height: 750px; overflow: hidden; }
+  .wrap {
+    height: 750px; min-height: 750px; max-height: 750px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  #panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .chamber-content { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .chart { flex: 1 1 auto; min-height: 0; height: auto; aspect-ratio: auto; }
+  .chart svg { object-fit: contain; }
+  .legend { flex: 0 0 auto; }
+
+  /* Keep every chamber/view inside the same 750px iframe viewport. */
+  html, body { width: 100%; overflow: hidden !important; }
+  .wrap { width: 100%; max-height: 750px; overflow: clip !important; }
+  #panel, .chamber-content { overflow: hidden; }
+  .tabs, .controls, .totals, .balance, .legend { flex-shrink: 0; }
+  .chart {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    max-height: 100%;
+    overflow: hidden !important;
+    contain: layout paint;
+  }
+  .chart svg { overflow: hidden !important; }
+  /* A changing majority label or legend must never resize the viewport. */
+  .balance-meta { flex-shrink: 0; }
+
+  /* Chamber tabs */
+  .tabs { display: flex; gap: 20px; border-bottom: 1px solid #999; margin-top: 0; }
+  .tab {
+    appearance: none; background: none; border: 0; padding: 8px 0 7px; cursor: pointer;
+    font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--muted);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+  .tab:hover { color: var(--ink); }
+
+  /* Controls */
+  .controls {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap; margin-top: 12px;
+  }
+  .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 0; padding: 2px; gap: 2px; }
+  .seg button {
+    appearance: none; border: 0; border-radius: 0; background: transparent; cursor: pointer;
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0; color: var(--muted);
+    padding: 5px 11px;
+  }
+  .seg button[aria-pressed="true"] { background: #EDEDED; color: var(--ink); }
+  .seg button:hover { color: var(--ink); }
+  .play {
+    appearance: none; background: var(--ink); color: #fff; border: 0; border-radius: 0;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0; padding: 8px 13px;
+  }
+  .play:hover { background: #333; }
+  .play svg { width: 8px; height: 9px; fill: currentColor; }
+  .play[data-state="playing"] { background: #EDEDED; color: var(--muted); cursor: default; }
+  .tab:focus-visible, .seg button:focus-visible, .play:focus-visible {
+    outline: 2px solid var(--dem); outline-offset: 2px;
+  }
+
+
+  /* Gentle invitation to reveal the results; stops after first selection. */
+  .seg button[data-view="after"].attention {
+    outline: 2px solid #222;
+    outline-offset: -2px;
+    animation: after-outline 1.8s ease-in-out infinite;
+  }
+  @keyframes after-outline {
+    0%, 100% { outline-color: rgba(0,0,0,.12); }
+    50% { outline-color: rgba(0,0,0,.95); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .seg button[data-view="after"].attention { animation: none; outline-color: #222; }
+  }
+
+  /* Reuters-inspired balance-of-power strip */
+  .totals { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:end; margin-top:25px; }
+  .tot .num { font-size:clamp(48px,6vw,76px); line-height:.98; font-weight:750; letter-spacing:-.045em; font-variant-numeric:tabular-nums; }
+  .tot .pname { display:flex; align-items:center; gap:5px; font-size:clamp(17px,2.4vw,26px); font-weight:700; letter-spacing:-.025em; margin-top:2px; }
+  .tot-d .num,.tot-d .pname { color:var(--dem); }
+  .tot-r { text-align:right; }
+  .tot-r .pname { color:var(--rep); justify-content:flex-end; }
+  .tot-r .num { color:var(--rep); }
+  .tot .psub { display:none; }
+  .maj { display:none; }
+  .balance { margin-top:7px; }
+  .balance-track { height:24px; display:flex; position:relative; width:100%; background:#d9d9d9; }
+  .balance-d { background:var(--dem); transition:width .65s ease; }
+  .balance-r { background:var(--rep); transition:width .65s ease; }
+  .balance-other { background:#d9d9d9; transition:width .65s ease; }
+  .balance-threshold { position:absolute; top:-3px; bottom:-9px; width:2px; background:#161616; transform:translateX(-50%); pointer-events:none; }
+  .balance-threshold span { position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); font-size:12px; color:#161616; white-space:nowrap; font-weight:600; }
+  .balance-meta { display:flex; justify-content:space-between; gap:24px; margin-top:53px; color:#666; font-size:13px; line-height:1.35; }
+  .balance-meta > div:last-child { text-align:right; }
+  .balance-meta .flip { display:none; }
+  .balance-meta > div { min-width:0; flex:1 1 0; overflow-wrap:break-word; }
+  .check { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; opacity:0; transition:opacity .2s; flex:none; }
+  .check path { stroke-dasharray:16; stroke-dashoffset:16; transition:stroke-dashoffset .5s ease .1s; }
+  .check.on { opacity:1; }
+  .check.on path { stroke-dashoffset:0; }
+  @media (prefers-reduced-motion:reduce) { .balance-d,.balance-r,.balance-other { transition:none; } }
+
+  /* Chart */
+  .chart { position: relative; width: 100%; aspect-ratio: 600 / 330; margin-top: 4px; }
+  .chart svg {
+    position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
+    transition: opacity .35s ease;
+  }
+  .chart svg.hidden { opacity: 0; pointer-events: none; visibility: hidden;
+    transition: opacity .35s ease, visibility 0s linear .35s; }
+  .seat { transition: fill .42s ease, stroke .42s ease; stroke: transparent; stroke-width: 0; }
+  .seat.d { fill: var(--dem); }
+  .seat.r { fill: var(--rep); }
+  .seat.i { fill: var(--ind); }
+  .seat.u { fill: var(--neutral); }
+  .seat.v { fill: #FFFFFF; stroke: #A3A3A3; stroke-width: 1.2; }
+  .seat.nu { fill-opacity: .28; }
+  .is-after .seat.fl { stroke: var(--ink); stroke-width: 1.6; }
+  .seat[tabindex] { cursor: pointer; }
+  .seat:focus { outline: none; }
+  .seat:focus-visible { stroke: var(--ink); stroke-width: 2.6; }
+  .seat.hover { stroke: var(--ink); stroke-width: 1.6; }
+  .tick { stroke: var(--ink); stroke-width: 1.25; }
+  .tick.pulse { animation: tickpulse .9s ease; }
+  @keyframes tickpulse {
+    0% { stroke-width: 1.25; }
+    35% { stroke-width: 3.5; stroke: var(--pulse, var(--dem)); }
+    100% { stroke-width: 1.25; }
+  }
+  .hollow {
+    position: absolute; left: 50%; transform: translateX(-50%); text-align: center;
+    pointer-events: none;
+  }
+  .h-when { display: none; }
+  .h-party {
+    font-size: clamp(13px, 3.8vw, 24px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1;
+  }
+  .h-what { font-size: clamp(10.5px, 2.4vw, 14px); color: var(--ink2); line-height: 1.3; margin-top: 1px; }
+
+  /* Tooltip */
+  .tip {
+    position: absolute; z-index: 5; width: max-content; max-width: 250px;
+    background: #fff; border: 1px solid #C8C8C8; border-radius: 0;
+    padding: 8px 10px 9px; font-size: 12.5px; line-height: 1.45; pointer-events: none;
+  }
+  .tip[hidden] { display: none; }
+  .tip .t1 { font-weight: 600; font-size: 13.5px; letter-spacing: normal; margin-bottom: 2px; }
+  .tip .t2 { color: var(--ink2); }
+  .tip .row { margin-top: 1px; }
+  .tip .k { color: var(--muted); }
+  .tip .dem { color: var(--dem); font-weight: 400; }
+  .tip .rep { color: var(--rep); font-weight: 400; }
+
+  /* Legend */
+  .legend {
+    list-style: none; margin: 8px 0 0; padding: 0;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px;
+    font-size: 12px; color: var(--ink2);
+  }
+  .legend li { display: inline-flex; align-items: center; gap: 5px; }
+  .legend svg { width: 10px; height: 10px; flex: none; }
+  .legend b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 520px) {
+    .wrap { padding: 12px 12px 10px; }
+    .tabs { gap: 16px; }
+    .tab { font-size: 13px; }
+    .seg { flex: 1 1 100%; }
+    .seg button { flex: 1; padding: 6px 4px; }
+    .play { flex: 1 1 100%; justify-content: center; padding: 9px; }
+    .tot .num { font-size: 48px; }
+    .tot .pname { font-size: 16px; }
+    .balance-track { height:18px; }
+    .balance-meta { font-size:11px; }
+    .maj-n { font-size: 17px; }
+    .maj-l { font-size: 11px; max-width: 100px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+    .check path { stroke-dashoffset: 0; }
+  }
+  /* Editorial typography: Georgia for prominent figures, Poppins elsewhere. */
+  .tot .num, .maj-n {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="widget">
+
+  <div class="tabs" role="tablist" aria-label="Chamber">
+    <button class="tab" role="tab" id="tab-house" data-chamber="house" aria-selected="true" aria-controls="panel">House of Representatives</button>
+    <button class="tab" role="tab" id="tab-senate" data-chamber="senate" aria-selected="false" aria-controls="panel" tabindex="-1">Senate</button>
+  </div>
+
+  <div id="panel" role="tabpanel" aria-labelledby="tab-house">
+    <div class="chamber-content">
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Show composition">
+        <button type="button" data-view="before" aria-pressed="true">Before the election</button>
+        <button type="button" data-view="after" aria-pressed="false">After the election</button>
+      </div>
+    </div>
+
+    <div class="totals">
+      <div class="tot tot-d">
+        <div class="pname"><span>Democrats</span><svg class="check" id="checkD" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.6l3.6 3.4L13.5 4.5"/></svg></div>
+        <div class="num" id="numD">0</div>
+        <div class="psub" id="subD"></div>
+      </div>
+      <div class="maj" id="maj">
+        <div class="maj-n" id="majN">218</div>
+        <div class="maj-l" id="majL">seats to control</div>
+      </div>
+      <div class="tot tot-r">
+        <div class="pname"><svg class="check" id="checkR" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.6l3.6 3.4L13.5 4.5"/></svg><span>Republicans</span></div>
+        <div class="num" id="numR">0</div>
+        <div class="psub" id="subR"></div>
+      </div>
+    </div>
+
+    <div class="balance" aria-label="Party seat share and majority threshold">
+      <div class="balance-track" role="img" id="balanceTrack">
+        <div class="balance-d" id="balanceD"></div><div class="balance-other" id="balanceOther"></div><div class="balance-r" id="balanceR"></div>
+        <div class="balance-threshold" id="balanceThreshold"><span id="balanceThresholdLabel">218 to control</span></div>
+      </div>
+      <div class="balance-meta"><div id="balanceLeft">Seats held</div><div id="balanceRight">Seats held</div></div>
+    </div>
+
+    <div class="chart" id="chart">
+      <div class="hollow" id="hollow" aria-hidden="true">
+        <div class="h-when" id="hWhen"></div>
+        <div class="h-party" id="hParty"></div>
+        <div class="h-what" id="hWhat"></div>
+      </div>
+      <div class="tip" id="tip" role="tooltip" hidden></div>
+    </div>
+
+    <ul class="legend" id="legend" aria-label="Legend"></ul>
+
+    </div>
+
+  </div>
+
+  <p class="sr-only" aria-live="polite" id="live"></p>
+</div>
+
+<script>
+/* =====================================================================
+   EDITABLE ELECTION DATA
+   ---------------------------------------------------------------------
+   Every number on the page is computed from this object. To update after
+   more races are called, change the counts / lists below and reload.
+   Totals are checked on load (435 House seats, 100 Senate seats).
+
+   Figures: Associated Press tallies as reported Nov. 7-8, 2026.
+   Senate margins are UNOFFICIAL (Nov. 4 counts) and will change as
+   states certify. Verify against AP before each republish.
+   ===================================================================== */
+window.SHIFT_DATA = {
+  updated: "Nov. 8, 2026",
+  source: "Associated Press",
+
+  house: {
+    seats: 435,
+    majority: 218,
+    majorityLabel: "seats to control",
+    // Membership on Election Day (Nov. 2, 2026)
+    before: { D: 214, R: 218, I: 1, vacant: 2 },
+    // Seats called by the AP so far
+    after: { D: 254, R: 162, I: 0, uncalled: 19 },
+    independentNote: "Rep. Kevin Kiley of California, elected as a Republican, left the party in March 2026 and caucused with Republicans."
+  },
+
+  senate: {
+    seats: 100,
+    majority: 51,
+    majorityLabel: "seats for an outright majority",
+    // Seats NOT on the 2026 ballot (Independents caucus with Democrats)
+    notUp: { D: 32, I: 2, R: 31 },
+    independentNote: "Sens. Angus King (Maine) and Bernie Sanders (Vt.) are independents who caucus with Democrats; neither was up in 2026.",
+    // Seats on the ballot that stayed with the same party (called by AP)
+    demHolds: ["Colorado", "Delaware", "Georgia", "Illinois", "Massachusetts", "Michigan",
+               "Minnesota", "New Hampshire", "New Jersey", "New Mexico", "Oregon",
+               "Rhode Island", "Virginia"],
+    repHolds: ["Alabama", "Arkansas", "Florida (special)", "Idaho", "Kentucky", "Louisiana",
+               "Montana", "Nebraska", "Oklahoma", "South Dakota", "Tennessee",
+               "West Virginia", "Wyoming"],
+    // Confirmed party flips (called by AP). Margin = unofficial, as of Nov. 4 count.
+    flips: [
+      { state: "North Carolina", from: "R", to: "D", winner: "Roy Cooper", loser: "Michael Whatley", seat: "Open seat", margin: "D+19.6" },
+      { state: "Texas", from: "R", to: "D", winner: "James Talarico", loser: "Ken Paxton", seat: "Open seat", margin: "D+12.1" },
+      { state: "Maine", from: "R", to: "D", winner: "Troy Jackson", loser: "Sen. Susan Collins", seat: "Incumbent defeated", margin: "D+6.9" },
+      { state: "Ohio (special)", from: "R", to: "D", winner: "Sherrod Brown", loser: "Sen. Jon Husted", seat: "Appointed incumbent defeated", margin: "D+4.9" },
+      { state: "Kansas", from: "R", to: "D", winner: "Adam Hamilton", loser: "Sen. Roger Marshall", seat: "Incumbent defeated", margin: "D+4.9" },
+      { state: "South Carolina", from: "R", to: "D", winner: "Annie Andrews", loser: "Sen. Darline Graham", seat: "Appointed incumbent defeated", margin: "D+4.4" },
+      { state: "Iowa", from: "R", to: "D", winner: "Josh Turek", loser: "Ashley Hinson", seat: "Open seat", margin: "D+4.1" }
+    ],
+    // Races the AP has not called. "from" = party that held the seat.
+    uncalled: [
+      { state: "Alaska", from: "R", race: "Sen. Dan Sullivan (R) vs. Mary Peltola (D)" },
+      { state: "Mississippi", from: "R", race: "Sen. Cindy Hyde-Smith (R) vs. Scott Colom (D)" }
+    ]
+  }
+};
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  var DATA = window.SHIFT_DATA;
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var VB_W = 600, VB_H = 330, CX = 300, BASE = 314, OUTER = 296;
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { return !!(mq && mq.matches); }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var chartEl = $('chart'), tipEl = $('tip');
+
+  /* ---------- Seat models ---------- */
+  function fill(arr, n, obj) { for (var i = 0; i < n; i++) arr.push(Object.assign({}, obj)); }
+
+  function buildHouse(c) {
+    var b = c.before, a = c.after, before = [], after = [];
+    function push(list, code, n) { for (var i = 0; i < n; i++) list.push(code); }
+    push(before, 'd', b.D); push(before, 'i', b.I || 0); push(before, 'v', b.vacant || 0); push(before, 'r', b.R);
+    push(after, 'd', a.D); push(after, 'i', a.I || 0); push(after, 'u', a.uncalled || 0); push(after, 'r', a.R);
+    if (before.length !== c.seats || after.length !== c.seats) {
+      console.warn('House data does not sum to ' + c.seats + ' (before ' + before.length + ', after ' + after.length + ')');
+    }
+    var seats = [];
+    for (var i = 0; i < c.seats; i++) seats.push({ b: before[i] || 'u', a: after[i] || 'u' });
+    return seats;
+  }
+
+  function buildSenate(c) {
+    var s = [];
+    fill(s, c.notUp.I, { b: 'i', a: 'i', kind: 'ind' });
+    fill(s, c.notUp.D, { b: 'd', a: 'd', nu: true, kind: 'notup' });
+    c.demHolds.forEach(function (st) { s.push({ b: 'd', a: 'd', kind: 'hold', state: st }); });
+    c.flips.forEach(function (f) { s.push({ b: f.from.toLowerCase(), a: f.to.toLowerCase(), fl: true, kind: 'flip', info: f }); });
+    c.uncalled.forEach(function (u) { s.push({ b: u.from.toLowerCase(), a: 'u', kind: 'uncalled', info: u, state: u.state }); });
+    c.repHolds.forEach(function (st) { s.push({ b: 'r', a: 'r', kind: 'hold', state: st }); });
+    fill(s, c.notUp.R, { b: 'r', a: 'r', nu: true, kind: 'notup' });
+    if (s.length !== c.seats) console.warn('Senate data does not sum to ' + c.seats + ' (got ' + s.length + ')');
+    return s;
+  }
+
+  /* ---------- Hemicycle layout ---------- */
+  function layout(n, rows, innerRatio) {
+    var rOut = OUTER, rIn = OUTER * innerRatio, radii = [], sum = 0, k, i;
+    for (k = 0; k < rows; k++) { var r = rIn + (rOut - rIn) * k / (rows - 1); radii.push(r); sum += r; }
+    var counts = radii.map(function (r) { return Math.round(n * r / sum); });
+    var diff = n - counts.reduce(function (a, b) { return a + b; }, 0);
+    for (k = rows - 1; diff !== 0; k = (k - 1 + rows) % rows) { counts[k] += diff > 0 ? 1 : -1; diff += diff > 0 ? -1 : 1; }
+    var rowGap = (rOut - rIn) / (rows - 1), arcGap = Infinity, pts = [];
+    for (k = 0; k < rows; k++) {
+      arcGap = Math.min(arcGap, Math.PI * radii[k] / (counts[k] - 1));
+      for (i = 0; i < counts[k]; i++) {
+        var th = Math.PI - Math.PI * i / (counts[k] - 1);
+        pts.push({ th: th, r: radii[k] });
+      }
+    }
+    var dot = Math.min(rowGap, arcGap) * 0.4;
+    var scale = (OUTER - dot) / OUTER; // keep outer dots inside the frame
+    pts.sort(function (p, q) { return (q.th - p.th) || (p.r - q.r); });
+    pts.forEach(function (p) {
+      p.x = CX + Math.cos(p.th) * p.r * scale;
+      p.y = BASE - Math.sin(p.th) * p.r * scale;
+    });
+    return { pts: pts, dot: dot, rIn: rIn * scale };
+  }
+
+  var state = { chamber: 'house', view: 'before', playing: false, timers: [], token: 0 };
+  var PARTY = { d: 'Democratic', r: 'Republican', i: 'Independent', u: 'Uncalled', v: 'Vacant' };
+
+  /* ---------- Build both chambers ---------- */
+  var CH = {
+    house: { key: 'house', cfg: DATA.house, seats: buildHouse(DATA.house), rows: 12, inner: 0.4 },
+    senate: { key: 'senate', cfg: DATA.senate, seats: buildSenate(DATA.senate), rows: 6, inner: 0.4 }
+  };
+
+  Object.keys(CH).forEach(function (key) {
+    var ch = CH[key], L = layout(ch.seats.length, ch.rows, ch.inner);
+    ch.layout = L;
+    var svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + VB_W + ' ' + VB_H);
+    svg.setAttribute('role', 'group');
+    svg.setAttribute('aria-label', (key === 'house' ? 'House' : 'Senate') + ' seating chart');
+    if (key !== 'house') svg.classList.add('hidden');
+
+    var topY = BASE - OUTER - 2;
+    var tick = document.createElementNS(SVGNS, 'line');
+    tick.setAttribute('x1', CX); tick.setAttribute('x2', CX);
+    tick.setAttribute('y1', 0); tick.setAttribute('y2', Math.max(4, topY - 3));
+    tick.setAttribute('class', 'tick');
+    svg.appendChild(tick);
+    ch.tick = tick;
+
+    var g = document.createElementNS(SVGNS, 'g');
+    ch.els = ch.seats.map(function (seat, i) {
+      var p = L.pts[i], c = document.createElementNS(SVGNS, 'circle');
+      c.setAttribute('cx', p.x.toFixed(2)); c.setAttribute('cy', p.y.toFixed(2));
+      c.setAttribute('r', L.dot.toFixed(2));
+      c.dataset.i = i;
+      if (seat.kind === 'flip' || seat.kind === 'uncalled') {
+        c.setAttribute('tabindex', '0');
+      }
+      g.appendChild(c);
+      return c;
+    });
+    svg.appendChild(g);
+    chartEl.insertBefore(svg, $('hollow'));
+    ch.svg = svg;
+    ch.cur = ch.seats.map(function (s) { return s.b; });
+    ch.played = false;
+    ch.seats.forEach(function (s, i) { applySeat(ch, i, s.b); });
+    bindTips(ch);
+  });
+
+  /* ---------- State ---------- */
+
+  function applySeat(ch, i, code) {
+    var s = ch.seats[i];
+    ch.cur[i] = code;
+    var cls = 'seat ' + code + (s.nu ? ' nu' : '') + (s.fl ? ' fl' : '');
+    ch.els[i].setAttribute('class', cls);
+    if (s.kind === 'flip' || s.kind === 'uncalled') ch.els[i].setAttribute('aria-label', tipText(ch, i));
+  }
+
+  function tally(ch) {
+    var t = { d: 0, r: 0, i: 0, u: 0, v: 0 };
+    ch.cur.forEach(function (c) { t[c]++; });
+    t.dem = ch.key === 'senate' ? t.d + t.i : t.d;
+    t.rep = ch.key === 'senate' ? t.r : t.r;
+    return t;
+  }
+  function majorityParty(ch, t) {
+    var m = ch.cfg.majority;
+    if (t.dem >= m) return 'D';
+    if (t.rep >= m) return 'R';
+    return null;
+  }
+
+  /* ---------- Numbers ---------- */
+  function setNum(el, to, animate) {
+    var from = el.dataset.v === undefined ? to : +el.dataset.v;
+    el.dataset.v = to;
+    if (el._raf) cancelAnimationFrame(el._raf);
+    if (!animate || reduced() || from === to) { el.textContent = to; return; }
+    var t0 = performance.now(), dur = 700;
+    (function step(now) {
+      var p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (to - from) * e);
+      if (p < 1) el._raf = requestAnimationFrame(step);
+    })(t0);
+  }
+
+  function setCheck(party) {
+    $('checkD').classList.toggle('on', party === 'D');
+    $('checkR').classList.toggle('on', party === 'R');
+  }
+
+  function renderStatus(ch, label) {
+    var t = tally(ch), mp = majorityParty(ch, t);
+    $('hWhen').textContent = label || (state.view === 'before' ? 'Before election' : 'After election');
+    var party = $('hParty'), what = $('hWhat');
+    if (mp === 'D') { party.textContent = 'Democrats'; party.style.color = 'var(--dem)'; }
+    else if (mp === 'R') { party.textContent = 'Republicans'; party.style.color = 'var(--rep)'; }
+    else { party.textContent = 'No majority'; party.style.color = 'var(--ink)'; }
+    var before = (label || '').indexOf('Before') === 0 || (!label && state.view === 'before');
+    what.textContent = !mp ? 'yet' : (mp === 'D' && !before ? 'secure a majority' : 'hold the majority');
+    setCheck(mp);
+    return mp;
+  }
+
+  function renderTotals(ch, animate) {
+    var t = tally(ch);
+    setNum($('numD'), t.dem, animate);
+    setNum($('numR'), t.rep, animate);
+    if (ch.key === 'senate') {
+      $('subD').textContent = 'incl. ' + t.i + ' independents';
+      $('subR').textContent = 'seats';
+    } else {
+      $('subD').textContent = 'seats';
+      $('subR').textContent = 'seats';
+    }
+    var total = ch.cfg.seats;
+    $('balanceD').style.width = (t.dem / total * 100) + '%';
+    $('balanceR').style.width = (t.rep / total * 100) + '%';
+    $('balanceOther').style.width = ((t.u + t.v) / total * 100) + '%';
+    $('balanceThreshold').style.left = ((ch.cfg.majority - .5) / total * 100) + '%';
+    $('balanceThresholdLabel').textContent = ch.cfg.majority + ' for majority';
+    $('balanceTrack').setAttribute('aria-label', t.dem + ' Democratic seats, ' + t.rep + ' Republican seats, ' + (t.u+t.v) + ' uncalled or vacant; ' + ch.cfg.majority + ' needed for majority');
+    if (ch.key === 'senate') {
+      $('balanceLeft').textContent = (ch.cfg.notUp.D + ch.cfg.notUp.I) + ' Democratic-caucus seats not up for election';
+      $('balanceRight').textContent = ch.cfg.notUp.R + ' Republican seats not up for election';
+    } else {
+      $('balanceLeft').textContent = 'Democratic seats';
+      $('balanceRight').textContent = 'Republican seats';
+    }
+    renderLegend(ch, t);
+    announce(ch, t);
+  }
+
+  function swatch(code, opts) {
+    opts = opts || {};
+    var colors = { d: 'var(--dem)', r: 'var(--rep)', i: 'var(--ind)', u: 'var(--neutral)', v: '#fff' };
+    var stroke = code === 'v' ? ' stroke="#9AA3B0" stroke-width="1.4"' : (opts.ring ? ' stroke="#171717" stroke-width="1.8"' : '');
+    var op = opts.faded ? ' fill-opacity="0.3"' : '';
+    return '<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="' + (opts.ring || code === 'v' ? 4.8 : 5.5) +
+      '" style="fill:' + colors[code] + '"' + op + stroke + '/></svg>';
+  }
+
+  function renderLegend(ch, t) {
+    var items = [];
+    if (ch.key === 'house') {
+      items.push([swatch('d'), 'Democratic']);
+      items.push([swatch('r'), 'Republican']);
+      if (t.i) items.push([swatch('i'), 'Independent <b>' + t.i + '</b>']);
+      if (t.v) items.push([swatch('v'), 'Vacant <b>' + t.v + '</b>']);
+      if (t.u) items.push([swatch('u'), 'Not yet called <b>' + t.u + '</b>']);
+    } else {
+      items.push([swatch('d'), 'Democratic']);
+      items.push([swatch('r'), 'Republican']);
+      items.push([swatch('i'), 'Independent (caucuses with Democrats) <b>' + t.i + '</b>']);
+      if (t.u) items.push([swatch('u'), 'Not yet called <b>' + t.u + '</b>']);
+      items.push([swatch('d', { faded: true }) , 'Not on 2026 ballot']);
+      if (state.view === 'after' || ch.cur.some(function (c, i) { return ch.seats[i].fl && c === 'd'; })) {
+        items.push([swatch('d', { ring: true }), 'Flipped to Democrats']);
+      }
+    }
+    $('legend').innerHTML = items.map(function (it) { return '<li>' + it[0] + '<span>' + it[1] + '</span></li>'; }).join('');
+  }
+
+  function announce(ch, t) {
+    if (state.playing) return;
+    var mp = majorityParty(ch, t);
+    var name = ch.key === 'house' ? 'House' : 'Senate';
+    var msg = name + ', ' + (state.view === 'before' ? 'before' : 'after') + ' the election: Democrats ' + t.dem +
+      ', Republicans ' + t.rep + (t.u ? ', ' + t.u + ' uncalled' : '') + (t.v ? ', ' + t.v + ' vacant' : '') +
+      '. ' + (mp === 'D' ? 'Democrats hold a majority.' : mp === 'R' ? 'Republicans hold a majority.' : 'No party has a majority.');
+    $('live').textContent = msg;
+    ch.svg.setAttribute('aria-label', msg);
+  }
+
+  /* ---------- Static chamber copy ---------- */
+  function renderChamberCopy(ch) {
+    var c = ch.cfg;
+    $('majN').textContent = c.majority;
+    $('majL').textContent = c.majorityLabel;
+
+    var hollow = $('hollow'), L = ch.layout;
+    var w = (L.rIn - L.dot) * 2 * 0.92;
+    hollow.style.width = (w / VB_W * 100) + '%';
+    hollow.style.bottom = ((VB_H - BASE) / VB_H * 100) + '%';
+  }
+
+  /* ---------- Views ---------- */
+  function clearTimers() {
+    state.timers.forEach(clearTimeout);
+    state.timers = [];
+  }
+  function stopPlay() {
+    state.token++;
+    clearTimers();
+    state.playing = false;
+    setPlayButton();
+  }
+
+  function setPlayButton() {
+    var btn = $('play'), ch = CH[state.chamber];
+    if (!btn) return;
+    btn.dataset.state = state.playing ? 'playing' : 'idle';
+    btn.setAttribute('aria-disabled', state.playing ? 'true' : 'false');
+    $('playLabel').textContent = state.playing ? 'Playing\u2026' : (ch.played ? 'Replay' : 'Play the shift');
+  }
+
+  function setViewButtons() {
+    document.querySelectorAll('.seg button').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.dataset.view === state.view ? 'true' : 'false');
+    });
+  }
+
+  function showView(view, animate) {
+    var ch = CH[state.chamber];
+    state.view = view;
+    setViewButtons();
+    ch.svg.classList.toggle('is-after', view === 'after');
+    var changed = [];
+    ch.seats.forEach(function (s, i) {
+      var target = view === 'after' ? s.a : s.b;
+      if (ch.cur[i] !== target) changed.push(i);
+    });
+    var span = Math.min(360, changed.length * 12);
+    changed.forEach(function (i, k) {
+      var s = ch.seats[i], el = ch.els[i];
+      el.style.transitionDelay = (animate && !reduced() && changed.length > 1)
+        ? Math.round(k / (changed.length - 1) * span) + 'ms' : '0ms';
+      applySeat(ch, i, view === 'after' ? s.a : s.b);
+    });
+    renderTotals(ch, animate);
+    renderStatus(ch);
+  }
+
+  function selectChamber(key, focus) {
+    if (key === state.chamber) return;
+    stopPlay();
+    hideTip();
+    var prev = CH[state.chamber];
+    state.chamber = key;
+    document.querySelectorAll('.tab').forEach(function (t) {
+      var on = t.dataset.chamber === key;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    $('panel').setAttribute('aria-labelledby', 'tab-' + key);
+    var ch = CH[key];
+    prev.svg.classList.add('hidden');
+    ch.svg.classList.remove('hidden');
+    renderChamberCopy(ch);
+    ch.els.forEach(function (el) { el.style.transitionDelay = '0ms'; });
+    $('numD').dataset.v = tally(ch).dem; $('numR').dataset.v = tally(ch).rep;
+    showView(state.view, false);
+    setPlayButton();
+  }
+
+  /* ---------- Play the shift ---------- */
+  function later(fn, ms, token) {
+    state.timers.push(setTimeout(function () { if (token === state.token) fn(); }, ms));
+  }
+
+  function play() {
+    if (state.playing) return;
+    hideTip();
+    stopPlay();
+    var token = state.token, ch = CH[state.chamber];
+    state.playing = true;
+    setPlayButton();
+
+    // 1. Starting balance
+    showView('before', true);
+    renderStatus(ch, 'Before election');
+
+    var m = ch.cfg.majority;
+    var toD = [], toU = [], other = [];
+    ch.seats.forEach(function (s, i) {
+      if (s.b === s.a) return;
+      if (s.a === 'd') toD.push(i); else if (s.a === 'u') toU.push(i); else other.push(i);
+    });
+    var order = toD.concat(other, toU);
+    var hold = reduced() ? 0 : 650;
+    var dur = reduced() ? 0 : (ch.key === 'house' ? 3800 : 3200);
+    var step = order.length > 1 ? dur / (order.length - 1) : 0;
+    var crossed = false;
+
+    later(function () {
+      state.view = 'after';
+      setViewButtons();
+      ch.svg.classList.add('is-after');
+      $('hWhen').textContent = 'Counting the shift';
+    }, hold, token);
+
+    order.forEach(function (i, k) {
+      later(function () {
+        ch.els[i].style.transitionDelay = '0ms';
+        applySeat(ch, i, ch.seats[i].a);
+        var t = tally(ch);
+        setNum($('numD'), t.dem, false);
+        setNum($('numR'), t.rep, false);
+        renderLegend(ch, t);
+        if (!crossed && t.dem >= m) {
+          crossed = true;
+          var maj = $('maj');
+          maj.style.setProperty('--pulse', 'var(--dem)');
+          ch.tick.style.setProperty('--pulse', 'var(--dem)');
+          maj.classList.remove('pulse'); ch.tick.classList.remove('pulse');
+          void maj.offsetWidth;
+          maj.classList.add('pulse'); ch.tick.classList.add('pulse');
+          renderStatus(ch, 'Majority reached');
+        } else if (!crossed) {
+          renderStatus(ch, 'Counting the shift');
+        }
+      }, hold + Math.round(k * step), token);
+    });
+
+    later(function () {
+      ch.played = true;
+      state.playing = false;
+      renderTotals(ch, false);
+      renderStatus(ch);
+      setPlayButton();
+    }, hold + dur + 700, token);
+  }
+
+  /* ---------- Tooltips ---------- */
+
+  function tipParts(ch, i) {
+    var s = ch.seats[i], code = ch.cur[i], after = state.view === 'after';
+    if (ch.key === 'house') {
+      if (code === 'i') return ['Independent', DATA.house.independentNote];
+      if (code === 'v') return ['Vacant seat', 'Unfilled on Election Day.'];
+      if (code === 'u') return ['Race not yet called', 'The AP has not declared a winner.'];
+      return [PARTY[code] + ' seat', after ? 'Won in 2026, called by the AP' : 'Held on Election Day'];
+    }
+    if (s.kind === 'flip') {
+      var f = s.info;
+      return [f.state, null, [
+        ['Winner', f.winner + ' (D)'],
+        ['Defeated', f.loser + ' (R)'],
+        ['Seat', f.seat],
+        ['Previous', '<span class="rep">Republican</span>'],
+        ['New', '<span class="dem">Democratic</span>'],
+        ['Margin', f.margin + ' <span class="k">(unofficial)</span>']
+      ]];
+    }
+    if (s.kind === 'uncalled') {
+      return [s.info.state, null, [
+        ['Status', after ? 'Not yet called by the AP' : 'Up for election'],
+        ['Race', s.info.race],
+        ['Previous', '<span class="rep">Republican</span>']
+      ]];
+    }
+    if (s.kind === 'hold') return [s.state, PARTY[code] + ' hold, won in 2026'];
+    if (s.kind === 'ind') return ['Independent', 'Caucuses with Democrats. Not on the 2026 ballot.'];
+    return [PARTY[code] + ' seat', 'Not on the 2026 ballot'];
+  }
+
+  function tipText(ch, i) {
+    var p = tipParts(ch, i);
+    var rows = (p[2] || []).map(function (r) { return r[0] + ': ' + r[1].replace(/<[^>]+>/g, ''); });
+    return [p[0], p[1]].concat(rows).filter(Boolean).join('. ');
+  }
+
+  var tipFor = null;
+  function showTip(ch, i) {
+    var p = tipParts(ch, i);
+    var html = '<div class="t1">' + p[0] + '</div>';
+    if (p[1]) html += '<div class="t2">' + p[1] + '</div>';
+    (p[2] || []).forEach(function (r) { html += '<div class="row"><span class="k">' + r[0] + ':</span> ' + r[1] + '</div>'; });
+    tipEl.innerHTML = html;
+    tipEl.hidden = false;
+    if (tipFor) tipFor.classList.remove('hover');
+    tipFor = ch.els[i];
+    tipFor.classList.add('hover');
+    var cr = chartEl.getBoundingClientRect(), er = ch.els[i].getBoundingClientRect();
+    var x = er.left + er.width / 2 - cr.left, y = er.top - cr.top;
+    var tw = tipEl.offsetWidth, th = tipEl.offsetHeight;
+    var left = Math.max(0, Math.min(cr.width - tw, x - tw / 2));
+    var top = y - th - 8;
+    if (top < -40) top = er.bottom - cr.top + 8;
+    tipEl.style.left = left + 'px';
+    tipEl.style.top = top + 'px';
+  }
+  function hideTip() {
+    tipEl.hidden = true;
+    if (tipFor) tipFor.classList.remove('hover');
+    tipFor = null;
+  }
+
+  function bindTips(ch) {
+    var svg = ch.svg;
+    function seatIndex(e) {
+      var t = e.target;
+      return t && t.tagName && t.tagName.toLowerCase() === 'circle' ? +t.dataset.i : -1;
+    }
+    svg.addEventListener('pointerover', function (e) {
+      if (e.pointerType === 'touch') return;
+      var i = seatIndex(e); if (i >= 0) showTip(ch, i);
+    });
+    svg.addEventListener('pointerout', function (e) {
+      if (e.pointerType === 'touch') return;
+      if (seatIndex(e) >= 0) hideTip();
+    });
+    svg.addEventListener('click', function (e) {
+      var i = seatIndex(e);
+      if (i >= 0) { e.stopPropagation(); showTip(ch, i); }
+    });
+    svg.addEventListener('focusin', function (e) { var i = seatIndex(e); if (i >= 0) showTip(ch, i); });
+    svg.addEventListener('focusout', hideTip);
+  }
+  document.addEventListener('click', function (e) { if (!chartEl.contains(e.target)) hideTip(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideTip(); });
+
+  /* ---------- Controls ---------- */
+  document.querySelectorAll('.tab').forEach(function (t) {
+    t.addEventListener('click', function () { selectChamber(t.dataset.chamber, false); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+        e.preventDefault();
+        selectChamber(e.key === 'Home' ? 'house' : e.key === 'End' ? 'senate' : (state.chamber === 'house' ? 'senate' : 'house'), true);
+      }
+    });
+  });
+  document.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (state.playing) stopPlay();
+      hideTip();
+      if (b.dataset.view === 'after') {
+        document.querySelector('.seg button[data-view="after"]').classList.remove('attention');
+      }
+      // Restore gentle seat-dot and number transitions without a staged reveal.
+      showView(b.dataset.view, true);
+    });
+  });
+  if ($('play')) $('play').addEventListener('click', play);
+
+  /* ---------- Init ---------- */
+  var first = CH.house;
+  renderChamberCopy(first);
+  // Always begin before the election; readers trigger the transition themselves.
+  showView('before', false);
+  document.querySelector('.seg button[data-view="after"]').classList.add('attention');
+  setPlayButton();
+
+  /* Auto-height for SNO/WordPress iframes that listen for it */
+  function postHeight() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ widget: 'highlander-shift-in-power', height: 750 }, '*');
+      }
+    } catch (err) { /* cross-origin parent: ignore */ }
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(postHeight).observe(document.getElementById('widget'));
+  window.addEventListener('load', postHeight);
+})();
+</script>
+</body>
+</html>
