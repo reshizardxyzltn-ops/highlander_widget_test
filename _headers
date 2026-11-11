@@ -1,0 +1,7 @@
+# Cloudflare Pages headers: let any site (including SNO) show this page in an iframe
+/*
+  Content-Security-Policy: frame-ancestors *
+  X-Content-Type-Options: nosniff
+
+/data/*
+  Cache-Control: public, max-age=300

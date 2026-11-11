@@ -1,0 +1,159 @@
+/* The Highlander · Virginia's Bluest and Reddest Counties */
+:root {
+  --paper: #FFFFFF; --ink: #1D1D1B; --ink-2: #4A4945; --muted: #76746E;
+  --rule: #E4E0D8; --rule-2: #CBC6BC; --fill: #F1EEE7; --land: #E6E2DA;
+  --dem: #2E6DB4; --rep: #BD474C; --wi: #B3AFA6;
+  --side: var(--dem);
+  --f-ui: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+.side-rep { --side: var(--rep); }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 15px/1.55 var(--f-ui); -webkit-font-smoothing: antialiased; position: relative; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* loading screen */
+.splash { position: absolute; inset: 0; z-index: 10; min-height: 100vh; background: var(--paper); display: grid; justify-items: center; align-content: start; padding-top: 120px; gap: 28px; animation: failsafe 0s linear 6s forwards; }
+.splash img { width: min(520px, 78vw); height: auto; animation: rise .6s cubic-bezier(.2,.7,.2,1) both; }
+.splash-bar { width: min(200px, 46vw); height: 2px; background: var(--rule); overflow: hidden; }
+.splash-bar span { display: block; width: 40%; height: 100%; background: var(--ink); animation: run 1.1s ease-in-out infinite; }
+.splash.done { opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility 0s linear .45s; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes run { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+@keyframes failsafe { to { opacity: 0; visibility: hidden; } }
+
+.wrap { max-width: 860px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-left, 0px)) 28px; }
+.w-title { font: 700 clamp(26px, 4.4vw, 42px)/1.12 var(--f-ui); letter-spacing: -0.02em; text-align: center; margin: 0; text-wrap: balance; }
+
+/* the clicker: one button per candidate */
+.picker { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; }
+.pick { position: relative; display: flex; align-items: center; gap: 16px; min-width: 0; padding: 14px 18px 16px; border: 1px solid var(--rule-2); background: var(--paper); cursor: pointer; text-align: left; overflow: hidden;
+  transition: border-color .2s, background-color .2s, box-shadow .2s; }
+.pick.rep { flex-direction: row-reverse; text-align: right; }
+.pick img { width: 92px; height: 92px; object-fit: contain; display: block; flex: none; filter: grayscale(1); opacity: .55; transition: filter .25s, opacity .25s, transform .25s; }
+.pick-t { min-width: 0; }
+.pick-n { display: block; font-size: clamp(24px, 3.4vw, 32px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }
+.pick-s { display: block; font-size: 14px; color: var(--muted); margin-top: 4px; }
+.pick:hover { border-color: var(--ink-2); }
+.pick:hover img { opacity: .8; }
+.pick[aria-pressed="true"] { --c: var(--dem); border-color: var(--c); background: color-mix(in srgb, var(--c) 7%, var(--paper)); box-shadow: inset 0 -4px 0 var(--c); }
+.pick.rep[aria-pressed="true"] { --c: var(--rep); }
+.pick[aria-pressed="true"] img { filter: none; opacity: 1; transform: translateY(-1px); }
+
+.scope { display: flex; justify-content: center; margin: 16px auto 0; }
+.scope-in { display: inline-flex; border: 1px solid var(--rule-2); }
+.scope button { border: 0; background: none; padding: 6px 14px; font-size: 12.5px; font-weight: 500; color: var(--muted); cursor: pointer; }
+.scope button + button { border-left: 1px solid var(--rule-2); }
+.scope button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+/* map */
+.map { position: relative; margin-top: 22px; }
+.map svg { display: block; width: 100%; height: auto; overflow: visible; }
+.map-logo { position: absolute; left: 0; top: 0; width: 36%; max-width: 310px; height: auto; box-sizing: border-box; padding: 2.2% 2.6%; border: 1px solid var(--rule-2); background: var(--paper); pointer-events: none; user-select: none; }
+@media (max-width: 560px) { .map-logo { width: 38%; padding: 6px 8px; } }
+.m-l { fill: var(--land); stroke: var(--paper); stroke-width: .7; stroke-linejoin: round; transition: fill .35s ease; cursor: default; }
+.m-l.on { fill: var(--side); }
+.m-l.hi { stroke: var(--ink); stroke-width: 1.8; }
+.m-state { fill: none; stroke: var(--rule-2); stroke-width: 1; pointer-events: none; }
+.m-dot { fill: var(--side); stroke: var(--paper); pointer-events: none; }
+.m-dot.hi { stroke: var(--ink); }
+.m-num { font-family: var(--f-ui); font-weight: 600; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.tip { position: absolute; z-index: 2; pointer-events: none; background: var(--paper); border: 1px solid var(--rule-2); padding: 8px 11px; font-size: 12.5px; line-height: 1.45; box-shadow: 0 6px 18px rgba(29,29,27,.10); min-width: 170px; transform: translate(-50%, calc(-100% - 12px)); }
+.tip b { display: block; font-size: 13.5px; font-weight: 600; }
+.tip .d { color: var(--dem); } .tip .r { color: var(--rep); }
+.map-key { display: flex; gap: 16px; justify-content: center; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.map-key i { display: inline-block; width: 11px; height: 11px; vertical-align: -1px; margin-right: 6px; background: var(--side); }
+.map-key i.o { background: var(--land); }
+
+/* ranked list */
+.list-head { display: grid; grid-template-columns: 38px 1fr 76px; gap: 12px; margin-top: 24px; padding-bottom: 8px; border-bottom: 1.5px solid var(--ink); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.list-head span:last-child { text-align: right; }
+ol.list { list-style: none; margin: 0; padding: 0; }
+.row { display: grid; grid-template-columns: 38px 1fr 76px; gap: 12px; align-items: center; padding: 9px 0 10px; border-bottom: 1px solid var(--rule); outline-offset: -2px;
+  animation: row-in .42s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i) * 32ms); }
+.row:hover, .row.hi { background: linear-gradient(90deg, color-mix(in srgb, var(--side) 6%, transparent), transparent 85%); }
+@keyframes row-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.rk { font-size: 20px; font-weight: 600; color: var(--side); text-align: center; }
+.nm { font-size: 16px; font-weight: 600; line-height: 1.25; }
+.nm small { font-size: 11px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: .02em; }
+.meta { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.meta .d { color: var(--dem); font-weight: 500; } .meta .r { color: var(--rep); font-weight: 500; }
+.bar { position: relative; display: flex; height: 7px; margin-top: 6px; background: var(--fill); }
+.bar span { display: block; height: 100%; width: 0; transition: width .7s cubic-bezier(.2,.7,.2,1); }
+.bar .d { background: var(--dem); } .bar .w { background: var(--wi); } .bar .r { background: var(--rep); margin-left: auto; }
+.bar i { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1.5px; background: var(--paper); }
+.mg { text-align: right; font-size: 19px; font-weight: 700; color: var(--side); letter-spacing: -0.01em; }
+.mg small { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-left: 2px; }
+
+.credit { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.credit img { height: 23px; width: auto; display: block; }
+.credit span { font-size: 11.5px; color: var(--muted); text-align: right; }
+
+@media (max-width: 560px) {
+  .wrap { padding-top: 22px; }
+  .picker { gap: 8px; }
+  .pick { padding: 12px 10px 14px; gap: 8px; flex-direction: column-reverse; align-items: flex-start; }
+  .pick.rep { flex-direction: column-reverse; align-items: flex-end; }
+  .pick img { width: 72px; height: 72px; }
+  .pick-n { font-size: clamp(18px, 5.4vw, 23px); }
+  .pick-s { font-size: 12px; }
+  .list-head, .row { grid-template-columns: 28px 1fr 62px; gap: 10px; }
+  .rk { font-size: 17px; }
+  .nm { font-size: 15px; }
+  .mg { font-size: 16px; }
+  .mg small { display: none; }
+  .meta .v { display: none; }
+  .credit { flex-direction: column; align-items: flex-start; }
+  .credit span { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+}
+
+/* Top ten: two compact columns, five ranked localities in each. */
+.list-head { display: none; }
+ol.list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); grid-auto-flow: column; column-gap: 22px; margin-top: 22px; }
+ol.list .row { min-width: 0; grid-template-columns: 28px minmax(0,1fr) 66px; gap: 7px; padding: 9px 0; }
+ol.list .nm { overflow-wrap: anywhere; font-size: 14px; }
+ol.list .rk { font-size: 17px; }
+ol.list .mg { font-size: 16px; }
+ol.list .meta { font-size: 11px; line-height: 1.45; }
+ol.list .meta .v { display: none; }
+@media (max-width: 560px) {
+  ol.list { column-gap: 12px; }
+  ol.list .row { grid-template-columns: 19px minmax(0,1fr); gap: 5px; padding: 8px 0; align-content: start; }
+  ol.list .rk { font-size: 14px; }
+  ol.list .nm { font-size: 12px; }
+  ol.list .meta { font-size: 10px; }
+  ol.list .mg { grid-column: 2; text-align: left; font-size: 13px; line-height: 1.2; }
+  ol.list .mg small { display: inline; font-size: 10px; }
+}
+
+/* Party colors in the headline */
+.w-title .title-blue { color: #2563eb; }
+.w-title .title-red { color: #dc2626; }
+
+/* Larger locality names with compact rankings; vote margin remains visible. */
+ol.list .nm { font-size: 17px; line-height: 1.3; }
+@media (max-width: 600px) { ol.list .nm { font-size: 14px; } }
+
+/* Compact embed layout: reduce actual content height rather than overlap article text. */
+.wrap { padding-top: 16px; padding-bottom: 8px; }
+.picker { margin-top: 14px; }
+.pick { padding-top: 9px; padding-bottom: 10px; }
+.pick img { width: 78px; height: 78px; }
+.scope { margin-top: 10px; }
+.map { margin-top: 10px; }
+.map svg { max-width: 760px; margin-inline: auto; }
+ol.list { margin-top: 10px; }
+ol.list .row { padding-top: 6px; padding-bottom: 6px; }
+.credit { margin-top: 12px; padding-top: 9px; }
+@media (max-width: 560px) {
+  .pick img { width: 64px; height: 64px; }
+  ol.list .row { padding-top: 7px; padding-bottom: 7px; }
+}
